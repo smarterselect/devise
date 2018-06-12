@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'hooks/timeoutable'
+require 'devise/hooks/timeoutable'
 
 module Devise
   module Models
