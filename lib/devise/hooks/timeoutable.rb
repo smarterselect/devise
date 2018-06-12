@@ -29,9 +29,10 @@ Warden::Manager.after_set_user do |record, warden, options|
       Devise.sign_out_all_scopes ? proxy.sign_out : proxy.sign_out(scope)
       throw :warden, scope: scope, message: :timeout
     elsif !record.reset_time.nil? &&
-          record.reset_time < Time.now.utc.to_i &&
-          record.reset_time > warden.session(scope)['last_request_at']
-      warden.session(scope)['last_request_at'] = record.reset_time
+      if record.reset_time > last_request_at.to_i &&
+          record.reset_time < Time.now.utc.to_i
+        warden.session(scope)['last_request_at'] = record.reset_time
+      end
       record.overwrite_reset_time(nil)
     end
 
