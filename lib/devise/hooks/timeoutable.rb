@@ -10,7 +10,7 @@ Warden::Manager.after_set_user do |record, warden, options|
   env   = warden.request.env
 
   if record && record.respond_to?(:timedout?) && warden.authenticated?(scope) &&
-     options[:store] != false && !env['devise.skip_timeoutable']
+      options[:store] != false && !env['devise.skip_timeoutable']
     last_request_at = warden.session(scope)['last_request_at']
 
     if last_request_at.is_a? Integer
@@ -21,11 +21,18 @@ Warden::Manager.after_set_user do |record, warden, options|
 
     proxy = Devise::Hooks::Proxy.new(warden)
 
+    # If record has a new time, will overwrite session's expiration time.
     if record.timedout?(last_request_at) &&
         !env['devise.skip_timeout'] &&
-        !proxy.remember_me_is_active?(record)
+        !proxy.remember_me_is_active?(record) &&
+        record.reset_time.nil?
       Devise.sign_out_all_scopes ? proxy.sign_out : proxy.sign_out(scope)
       throw :warden, scope: scope, message: :timeout
+    elsif !record.reset_time.nil? &&
+          record.reset_time < Time.now.utc.to_i &&
+          record.reset_time > warden.session(scope)['last_request_at']
+      warden.session(scope)['last_request_at'] = record.reset_time
+      record.overwrite_reset_time(nil)
     end
 
     unless env['devise.skip_trackable']

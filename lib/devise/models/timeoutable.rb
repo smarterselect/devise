@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'devise/hooks/timeoutable'
+require 'hooks/timeoutable'
 
 module Devise
   module Models
@@ -21,7 +21,9 @@ module Devise
     #
     module Timeoutable
       extend ActiveSupport::Concern
+      attr_accessor :reset_time
 
+      @reset_time = nil
       def self.required_fields(klass)
         []
       end
@@ -33,6 +35,11 @@ module Devise
 
       def timeout_in
         self.class.timeout_in
+      end
+
+      # Stores time to change session's expiration time.
+      def overwrite_reset_time(time)
+        @reset_time = time.nil? ? time : time.to_i
       end
 
       private
