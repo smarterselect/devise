@@ -12,7 +12,6 @@ Warden::Manager.after_set_user do |record, warden, options|
   if record && record.respond_to?(:timedout?) && warden.authenticated?(scope) &&
       options[:store] != false && !env['devise.skip_timeoutable']
     last_request_at = warden.session(scope)['last_request_at']
-
     if last_request_at.is_a? Integer
       last_request_at = Time.at(last_request_at).utc
     elsif last_request_at.is_a? String
@@ -28,7 +27,7 @@ Warden::Manager.after_set_user do |record, warden, options|
         record.reset_time.nil?
       Devise.sign_out_all_scopes ? proxy.sign_out : proxy.sign_out(scope)
       throw :warden, scope: scope, message: :timeout
-    elsif !record.reset_time.nil? &&
+    elsif !record.reset_time.nil?
       if record.reset_time > last_request_at.to_i &&
           record.reset_time < Time.now.utc.to_i
         warden.session(scope)['last_request_at'] = record.reset_time

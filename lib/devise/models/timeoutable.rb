@@ -21,9 +21,7 @@ module Devise
     #
     module Timeoutable
       extend ActiveSupport::Concern
-      attr_accessor :reset_time
-
-      @reset_time = nil
+      
       def self.required_fields(klass)
         []
       end
@@ -37,9 +35,13 @@ module Devise
         self.class.timeout_in
       end
 
+      def reset_time
+        time = SessionTime.time
+      end
+
       # Stores time to change session's expiration time.
       def overwrite_reset_time(time)
-        @reset_time = time.nil? ? time : time.to_i
+        SessionTime.time = time.nil? ? time : time.to_i
       end
 
       private
