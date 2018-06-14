@@ -44,6 +44,14 @@ module Devise
         SessionTime.time = time.nil? ? time : time.to_i
       end
 
+      def last_reset_time
+        last_reset_time = SessionTime.last_reset_time
+      end
+
+      def set_last_reset_time(time)
+        SessionTime.last_reset_time = time.to_i
+      end
+
       private
 
       module ClassMethods
