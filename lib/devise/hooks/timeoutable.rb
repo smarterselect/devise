@@ -31,7 +31,7 @@ Warden::Manager.after_set_user do |record, warden, options|
       if record.reset_time > last_request_at.to_i &&
           record.reset_time < Time.now.utc.to_i
         warden.session(scope)['last_request_at'] = record.reset_time
-        record.set_last_reset_time = Time.now.utc
+        record.set_last_reset_time(Time.now.utc)
       end
       record.overwrite_reset_time(nil)
     end
